@@ -1,0 +1,104 @@
+CREATE TABLE tbl_dialog (
+    dialog_id SERIAL PRIMARY KEY,
+    dialog_name VARCHAR(255),
+    dialog_name_2 VARCHAR(255),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE tbl_message (
+    message_id SERIAL PRIMARY KEY,
+    dialog_id INT,
+    user_id INT,
+    message_text TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (dialog_id) REFERENCES tbl_dialog(dialog_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id)
+);
+
+CREATE TABLE tbl_user (
+    user_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    username VARCHAR(50),
+    password VARCHAR(255)
+);
+
+CREATE TABLE tbl_dialog_participants (
+    dialog_id INT,
+    user_id INT,
+    FOREIGN KEY (dialog_id) REFERENCES tbl_dialog(dialog_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id)
+);
+
+CREATE TABLE tbl_message_status (
+	status_id serial4 NOT NULL,
+	message_id int4 NULL,
+	user_id int4 NULL,
+	is_read bool DEFAULT false NULL,
+	CONSTRAINT tbl_message_status_pkey PRIMARY KEY (status_id),
+	CONSTRAINT tbl_message_status_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.tbl_message(message_id),
+	CONSTRAINT tbl_message_status_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.tbl_user(user_id)
+);
+
+*****
+
+CREATE TABLE tbl_user (
+    user_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    username VARCHAR(50),
+    password VARCHAR(255)
+);
+
+CREATE TABLE tbl_dialog (
+    dialog_id SERIAL PRIMARY KEY,
+    dialog_name VARCHAR(255),
+    dialog_name_2 VARCHAR(255),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE tbl_message (
+    message_id SERIAL PRIMARY KEY,
+    dialog_id INT,
+    user_id INT,
+    message_text TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (dialog_id) REFERENCES tbl_dialog(dialog_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id)
+);
+
+CREATE TABLE tbl_dialog_participants (
+    dialog_id INT,
+    user_id INT,
+    company_id INT,
+    FOREIGN KEY (dialog_id) REFERENCES tbl_dialog(dialog_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id),
+    FOREIGN KEY (company_id) REFERENCES company(company_id)
+);
+
+CREATE TABLE company (
+    company_id SERIAL PRIMARY KEY,
+    company_name VARCHAR(255),
+    company_description TEXT
+);
+
+CREATE TABLE user_company (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    company_id INT,
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id),
+    FOREIGN KEY (company_id) REFERENCES company(company_id)
+);
+
+CREATE TABLE tbl_message_status (
+    status_id SERIAL PRIMARY KEY,
+    message_id INT,
+    user_id INT,
+    is_read BOOLEAN DEFAULT false,
+    FOREIGN KEY (message_id) REFERENCES tbl_message(message_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user(user_id)
+);

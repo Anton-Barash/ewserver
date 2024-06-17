@@ -1,23 +1,27 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const { Client } = require('pg');
+const indexRouter = require("./element/router");
+const cors = require('cors');
 
 const app = express();
+
+// Разрешить запросы с определенного источника
+const corsOptions = {
+    origin: 'http://localhost:5173',
+  };
+  
+  // Использовать CORS middleware с опциями
+  app.use(cors(corsOptions))
+
+app.use(express.json());
+app.use('/api', indexRouter);
+
+
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Подключение к базе данных PostgreSQL
-const client = new Client({
-    user: 'your_username',
-    host: 'localhost',
-    database: 'your_database_name',
-    password: 'your_password',
-    port: 5432,
-});
-client.connect()
-    .then(() => console.log('Подключение к базе данных PostgreSQL установлено'))
-    .catch(err => console.error('Ошибка подключения к базе данных PostgreSQL:', err));
+
 
 io.on('connection', (socket) => {
     console.log('Пользователь подключился');
