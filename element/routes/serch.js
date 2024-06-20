@@ -2,20 +2,22 @@ const { client } = require("../../db");
 
 const serch = async (req, res) => {
 
-    const name_1 = req.body.name_1 || ''; // Получение параметра param1 из запроса
-    const name_2 = req.body.name_2 || ''; // Получение параметра param2 из запроса
-    const user_id = 2
-    const company_id = 1
+    const factory_name = req.body.factory_name.toLowerCase() || ''; // Получение параметра param1 из запроса
+    const item_name = req.body.item_name.toLowerCase() || ''; // Получение параметра param2 из запроса
+    const user_id = req.body.user_id
+    const company_id = req.body.company_id
 
-    console.log(name_1);
+    console.log(factory_name);
     try {
         const result = await client.query(`
             
-SELECT dp.user_id, dp.company_id, d.dialog_id, d.dialog_name, d.dialog_name_2 
-FROM public.tbl_dialog_participants dp
-JOIN public.tbl_dialog d ON dp.dialog_id = d.dialog_id
-WHERE (d.dialog_name ILIKE '%${name_1}%' and d.dialog_name_2 ILIKE '%${name_2}%')
-AND (dp.user_id = 2 OR dp.company_id = 1);
+SELECT *
+FROM public.tbl_dialog AS d
+JOIN public.tbl_factory AS f ON d.factory_id = f.factory_id
+WHERE d.company_id =${company_id}
+AND d.item_name LIKE '%${item_name}%'
+AND f.factory_name LIKE '%${factory_name}%';
+
             
             `); // Выполняем запрос к таблице
 
