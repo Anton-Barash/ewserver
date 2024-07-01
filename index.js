@@ -1,38 +1,48 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const indexRouter = require("./element/router");
-const cors = require('cors');
+const fastify = require('fastify')({
+  logger: false
+});
+const cors = require('@fastify/cors');
+const fastifySession = require('@fastify/session');
+const fastifyCookie = require('@fastify/cookie');
+const { login } = require('./element/routes/login');
 
-const app = express();
-
-// Разрешить запросы с определенного источника
-const corsOptions = {
-    origin: 'http://localhost:5173',
-  };
-  
-  // Использовать CORS middleware с опциями
-  app.use(cors(corsOptions))
-
-app.use(express.json());
-app.use('/api', indexRouter);
-
-
-const server = http.createServer(app);
-const io = socketIo(server);
-
-
-
-io.on('connection', (socket) => {
-    console.log('Пользователь подключился');
-
-    socket.on('message', (data) => {
-        console.log('Получено сообщение: ' + data);
-    });
+fastify.register(cors, {
+  credentials: true,
+  origin: 'http://localhost:5173',
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+const SECRET_KEY = 'mysecretkeysdfasdfasdfasdfasdsdaf';
+
+fastify.register(fastifyCookie);
+
+fastify.register(fastifySession, {
+  secret: SECRET_KEY,
+  cookieName: 'session_id',
+  cookie: {
+    path: '/',
+    secure: false
+  }
 });
 
+
+
+
+// Защищенный маршрут для проверки аутентификации
+fastify.get('/api/profile', async (request, reply) => {
+  if (!request.session.user) {
+    return reply.code(401).send({ error: 'Unauthorized' });
+  }
+  reply.send({ message: 'Protected route', user: request.session.user });
+});
+
+
+
+fastify.post('/login', login)
+fastify.register(require('./element/router'), { prefix: '/api' });
+
+// fastify.register()
+
+fastify.listen({ port: 3000 }, (err, address) => {
+  if (err) throw err;
+  console.log(`Server is now listening on ${address}`);
+});
