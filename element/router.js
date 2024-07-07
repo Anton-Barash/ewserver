@@ -13,7 +13,6 @@ function routes(fastify, options, done) {
 
 
     fastify.addHook('onRequest', async (request, reply) => {
-        console.log('This is a hook before processing requests for /api');
         if (!request.session.user) {
             return reply.status(401).send({ error: 'Unauthorized' });
         }
@@ -33,7 +32,9 @@ function routes(fastify, options, done) {
     // получим чат
     fastify.post('/chatList', chatList);
     // добавить запись
-    fastify.post('/addMess', addMess);
+    fastify.post('/addMess', async (req, reply) => {
+        await addMess(req, reply, fastify.io);
+    });
     //  выход
     fastify.get('/exit', async (request, reply) => {
         request.session.destroy((err) => {

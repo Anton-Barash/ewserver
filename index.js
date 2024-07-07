@@ -6,6 +6,8 @@ const fastifySession = require('@fastify/session');
 const fastifyCookie = require('@fastify/cookie');
 const { login } = require('./element/routes/login');
 
+
+
 fastify.register(cors, {
   credentials: true,
   origin: 'http://localhost:5173',
@@ -24,6 +26,13 @@ fastify.register(fastifySession, {
   }
 });
 
+fastify.register(require("fastify-socket.io"), {
+  cors: {
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
 
 
 
@@ -37,12 +46,43 @@ fastify.get('/api/profile', async (request, reply) => {
 
 
 
-fastify.post('/login', login)
+// fastify.post('/login', login)
+
+fastify.post('/login', async (req, reply) => {
+  await login(req, reply, fastify.io);
+});
+
 fastify.register(require('./element/router'), { prefix: '/api' });
 
-// fastify.register()
+// fastify.post('/login', (req, reply) => {
+//   fastify.io.emit('hello');
+// });
 
-fastify.listen({ port: 3000 }, (err, address) => {
+
+
+fastify.ready(err => {
   if (err) throw err;
-  console.log(`Server is now listening on ${address}`);
+
+  fastify.io.on('connect', socket => {
+    // fastify.decorateRequest('io', socket);
+    console.log('Client connected');
+
+    socket.on('message', data => {
+      console.log('Received message:', data);
+      socket.send({ message: 'Message received' });
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+    });
+  });
+
+  fastify.listen({ port: 3000 }, (err, address) => {
+    if (err) throw err;
+    console.log(`Server is now listening on ${address}`);
+  });
 });
+
+
+
+

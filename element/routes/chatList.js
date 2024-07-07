@@ -18,7 +18,7 @@ ORDER BY tm.message_id;
 
             `); // Выполняем запрос к таблице
 
-        console.log(result.rows); // Выводим результат запроса
+
         res.send(result.rows); // Отправляем данные клиенту
     } catch (error) {
         console.error('Ошибка при получении данных из таблицы:', error);

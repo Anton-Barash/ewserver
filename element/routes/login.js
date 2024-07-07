@@ -1,11 +1,10 @@
 const { client } = require("../../db");
 
-const login = async (req, res) => {
+const login = async (req, res, fastify) => {
 
 
     const { username, password } = req.body;
 
-    console.log(username, password);
     try {
         const result = await client.query(`
 SELECT c.company_name, uc.company_id, u.first_name, u.last_name, u.user_id
@@ -18,7 +17,8 @@ WHERE u.username = '${username}' AND u.password = '${password}';
 
         if (result.rows.length > 0) {
             req.session.user = { user_id: result.rows[0].user_id, username };
-            console.log(result.rows); // Выводим результат запроса
+            // req.socket.io.emit('hello', 'hello')
+            console.log(fastify.emit('hello', 'жопа'))
             res.send(result.rows); // Отправляем данные клиенту
         }
         else {
