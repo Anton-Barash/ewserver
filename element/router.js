@@ -6,6 +6,7 @@ const { addNewFactory } = require('./routes/addNewFactory');
 const { addNewItem } = require('./routes/addNewItem');
 const { chatList } = require('./routes/chatList');
 const { addMess } = require('./routes/addMess');
+const { sendMail } = require('./routes/sendMail');
 
 
 
@@ -46,6 +47,10 @@ function routes(fastify, options, done) {
         })
     })
 
+
+    // отправка письма
+
+    fastify.post('/sendMail', sendMail)
 
     done();
 }
