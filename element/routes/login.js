@@ -9,8 +9,8 @@ const login = async (req, res, fastify) => {
         const result = await client.query(`
 SELECT c.company_name, uc.company_id, u.first_name, u.last_name, u.user_id
 FROM tbl_user u
-JOIN tbl_user_company uc ON u.user_id = uc.user_id
-JOIN tbl_company c ON uc.company_id = c.company_id
+LEFT JOIN tbl_user_company uc ON u.user_id = uc.user_id
+left JOIN tbl_company c ON uc.company_id = c.company_id
 WHERE u.username = '${username}' AND u.password = '${password}';
             
             `); // Выполняем запрос к таблице
@@ -18,12 +18,12 @@ WHERE u.username = '${username}' AND u.password = '${password}';
         if (result.rows.length > 0) {
             req.session.user = { user_id: result.rows[0].user_id, username };
             // req.socket.io.emit('hello', 'hello')
-            console.log(fastify.emit('hello', 'жопа'))
+            // console.log(fastify.emit('hello', 'жопа'))
             res.send(result.rows); // Отправляем данные клиенту
         }
         else {
 
-            res.status(401).send({ message: 'Неверные учетные данные' });
+            res.status(500).send({ message: 'Неверные учетные данные' });
         }
 
 

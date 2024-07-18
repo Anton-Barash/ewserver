@@ -5,7 +5,7 @@ const addMess = async (req, res, fastify) => {
     const dialog_id = req.body.dialog_id;
     const user_id = req.session.user.user_id;
     const message_text = req.body.message_text;
-    const created_at = Date.now()
+   
     try {
         const result = await client.query(`
 WITH new_message AS (

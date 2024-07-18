@@ -2,6 +2,9 @@ const nodemailer = require('nodemailer');
 
 const sendMail = async (req, res) => {
     // Создаем транспорт для отправки писем
+
+    const { mail, text } = req.body
+    console.log("text", mail);
     let transporter = nodemailer.createTransport({
         host: 'smtp-relay.brevo.com',
         port: 587,
@@ -15,9 +18,9 @@ const sendMail = async (req, res) => {
     // Настройки письма
     let mailOptions = {
         from: 'anton@focusqc.com',
-        to: 'anton@focusqc.com',
+        to: mail,
         subject: 'Тема письма',
-        text: 'Текст письма'
+        text: text
     };
 
     try {

@@ -5,6 +5,9 @@ const cors = require('@fastify/cors');
 const fastifySession = require('@fastify/session');
 const fastifyCookie = require('@fastify/cookie');
 const { login } = require('./element/routes/login');
+const { register } = require('./element/routes/register');
+const { sendMail } = require('./element/routes/sendMail');
+const { registerCompleet } = require('./element/routes/registerCompleet');
 
 
 
@@ -46,18 +49,29 @@ fastify.get('/api/profile', async (request, reply) => {
 
 
 
-// fastify.post('/login', login)
+fastify.post('/login', login)
 
-fastify.post('/login', async (req, reply) => {
-  await login(req, reply, fastify.io);
-});
-
-fastify.register(require('./element/router'), { prefix: '/api' });
-
-// fastify.post('/login', (req, reply) => {
-//   fastify.io.emit('hello');
+// fastify.post('/login', async (req, reply) => {
+//   await login(req, reply);
 // });
 
+
+
+// Обработка маршрута /register
+fastify.post('/register', async (request, reply) => {
+  try {
+    await register(request, reply);
+    await sendMail(request, reply);
+    return { success: true, message: 'Registration and email sent successfully' };
+  } catch (error) {
+    reply.status(500).send({ success: false, message: 'An error occurred during registration or email sending' });
+  }
+});
+
+
+fastify.put('/register', registerCompleet)
+
+fastify.register(require('./element/router'), { prefix: '/api' });
 
 
 fastify.ready(err => {
