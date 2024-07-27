@@ -8,6 +8,8 @@ const { login } = require('./element/routes/login');
 const { register } = require('./element/routes/register');
 const { sendMail } = require('./element/routes/sendMail');
 const { registerCompleet } = require('./element/routes/registerCompleet');
+const { generatePresignedUrl, fileUpload } = require('./element/routes/ksw');
+const { fUp } = require('./element/routes/fUp');
 
 
 
@@ -37,7 +39,8 @@ fastify.register(require("fastify-socket.io"), {
   }
 });
 
-
+// для загрузки файлов
+fastify.register(require('@fastify/multipart'))
 
 // Защищенный маршрут для проверки аутентификации
 fastify.get('/api/profile', async (request, reply) => {
@@ -50,6 +53,10 @@ fastify.get('/api/profile', async (request, reply) => {
 
 
 fastify.post('/login', login)
+
+fastify.get('/ksw', generatePresignedUrl)
+
+fastify.put('/fileUpload', fileUpload)
 
 // fastify.post('/login', async (req, reply) => {
 //   await login(req, reply);
