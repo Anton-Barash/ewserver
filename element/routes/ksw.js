@@ -1,7 +1,8 @@
 var KS3 = require('ks3');
 
 const { Readable } = require('stream');
-const multer = require('multer');
+const { PassThrough } = require('stream'); // Импортируем PassThrough для создания потока
+
 
 var client = new KS3('AKLT6XM36m9LTh2SVvGIZDDS', 'OMeJvTyvVoNT3niEJxvneotJGKKyK2CJO1gw3XSH', 'ew-ks3-buket', 'SINGAPORE');
 
@@ -31,35 +32,27 @@ const generatePresignedUrl = async (req, res) => {
 }
 
 const fileUpload = async (req, res) => {
-  console.log(req.file);
-  try {
-    const fileBuffer = req.file.buffer; // Получаем буфер из файла
+  const data = await new Promise((resolve, reject) => {
+    const file = req.file; // Получаем буфер из файла
+    const stream = new PassThrough();
+    stream.end(file.buffer); // Передаем буфер файла в поток
 
-    const fileStream = new Readable();
-    fileStream.push(fileBuffer);
-    fileStream.push(null);
+    client.object.put({
+      // Bucket: 'ew-ks3-buket',
 
-    const data = await new Promise((resolve, reject) => {
-      // const contentLength = fileBuffer.length; // Получаем длину буфера
-
-      client.object.put({
-        Bucket: 'ew-ks3-buket',
-        Key: 'uniqueObjectKey', // Замените на уникальный ключ объекта
-        Body: fileStream, // Передаем stream файла
-        ContentLength: '8787878787' // Устанавливаем Content-Length
-      }, function (rerr, data, response, body) {
-        if (data) {
-          console.log(data);
-          resolve(data);
-        } else {
-          reject(rerr);
-        }
-      });
+      Key: 'img2/' + file.originalname, // Замените на уникальный ключ объекта
+      Body: stream, // Передаем stream файла,
+      headers: { 'Content-Length': `${file.size}` },
+    }, function (rerr, data, response, body) {
+      console.log(response.statusCode)
+      resolve(response.statusCode)
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Ошибка загрузки файла.');
-  }
+  });
+  res.send(data)
+
+
+
+
 }
 
 

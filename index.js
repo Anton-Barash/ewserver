@@ -4,6 +4,7 @@ const fastify = require('fastify')({
 const cors = require('@fastify/cors');
 const fastifySession = require('@fastify/session');
 const fastifyCookie = require('@fastify/cookie');
+const multer = require('fastify-multer');
 const { login } = require('./element/routes/login');
 const { register } = require('./element/routes/register');
 const { sendMail } = require('./element/routes/sendMail');
@@ -39,8 +40,8 @@ fastify.register(require("fastify-socket.io"), {
   }
 });
 
-// для загрузки файлов
-fastify.register(require('@fastify/multipart'))
+
+// fastify.register(require('@fastify/multipart'))
 
 // Защищенный маршрут для проверки аутентификации
 fastify.get('/api/profile', async (request, reply) => {
@@ -56,12 +57,25 @@ fastify.post('/login', login)
 
 fastify.get('/ksw', generatePresignedUrl)
 
-fastify.put('/fileUpload', fileUpload)
+// Настройка Multer для обработки multipart/form-data без сохранения на диске
+const upload = multer({
+  storage: multer.memoryStorage() // Используем память для хранения загружаемых файлов
+});
+// Регистрируем multer как плагин
+fastify.register(multer.contentParser); // Это необходимо для обработки multipart/form-data
 
-// fastify.post('/login', async (req, reply) => {
-//   await login(req, reply);
-// });
+// Рендерим страницу с формой для загрузки файла
+fastify.get('/', (request, reply) => {
+  reply.type('text/html').send(`
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" />
+      <button type="submit">Upload</button>
+    </form>
+  `);
+});
 
+// Обработка загрузки файлов
+fastify.post('/fileUpload', { preHandler: upload.single('file') }, fileUpload);
 
 
 // Обработка маршрута /register
