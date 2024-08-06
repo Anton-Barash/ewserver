@@ -14,7 +14,6 @@ left JOIN tbl_company c ON uc.company_id = c.company_id
 WHERE u.username = '${username}' AND u.password = '${password}';
             
             `); // Выполняем запрос к таблице
-
         if (result.rows.length > 0) {
             req.session.user = { user_id: result.rows[0].user_id, username };
             // req.socket.io.emit('hello', 'hello')

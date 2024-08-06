@@ -20,3 +20,4 @@ const connectToDatabase = async () => {
 connectToDatabase(); // Устанавливаем соединение с базой данных
 
 exports.client = client
+exports.dbClient = client
