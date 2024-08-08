@@ -32,53 +32,62 @@ const generatePresignedUrl = async (req, res) => {
 }
 
 const fileUpload = async (req, res, fastify) => {
-  const data = await new Promise((resolve, reject) => {
-    const file = req.file; // Получаем буфер из файла
+  try {
+    const file = req.file;
     const user_id = req.session.user.user_id;
     const { dialog_id, company_id } = req.body;
 
-    const stream = new PassThrough();
-    stream.end(file.buffer); // Передаем буфер файла в поток
+    const result = await dbClient.query('BEGIN'); // Начало транзакции
 
-    client.object.put({
-      Key: ` ${company_id}/${dialog_id}/` + file.originalname, // Замените на уникальный ключ объекта
-      Body: stream, // Передаем stream файла,
-      headers: { 'Content-Length': `${file.size}` },
-    }, async function (rerr, data, response, body) {
-      console.log(response.statusCode)
+    const newMessageQuery = `
+      WITH new_message AS (
+        INSERT INTO public.tbl_message (dialog_id, user_id, message_text, created_at, mime_type)
+        VALUES (${dialog_id}, ${user_id}, '${file.originalname}', CURRENT_TIMESTAMP, '${file.mimetype}')
+        RETURNING *
+      )
+      SELECT nm.*, u.first_name, u.last_name
+      FROM new_message nm
+      JOIN public.tbl_user u ON nm.user_id = u.user_id;
+    `;
 
-      if (response.statusCode === 200) {
+    const newMessageResult = await dbClient.query(newMessageQuery);
 
-        try {
-          const result = await dbClient.query(`
-WITH new_message AS (
-INSERT INTO public.tbl_message (dialog_id, user_id, message_text, created_at, mime_type)
-VALUES (${dialog_id}, ${user_id}, '${file.originalname}', CURRENT_TIMESTAMP, '${file.mimetype}')
-RETURNING *
-)
-SELECT nm.*, u.first_name, u.last_name
-FROM new_message nm
-JOIN public.tbl_user u ON nm.user_id = u.user_id;
-        
-        `); // Выполняем запрос к таблице
+    if (newMessageResult.rows.length > 0) {
+      const message_id = newMessageResult.rows[0].message_id;
 
+      const stream = new PassThrough();
+      stream.end(file.buffer);
 
-          // io.emit(dialog_id, 'сообщение для' + dialog_id)
-          console.log("addMess" + dialog_id)
-          fastify.emit("addMess" + dialog_id, result.rows)
-          res.send(result.rows); // Отправляем данные клиенту
-        } catch (error) {
-          console.error('Ошибка при получении данных из таблицы:', error);
-          res.status(500).send('Ошибка при получении данных из таблицы');
-        }
+      const uploadResult = await new Promise((resolve, reject) => {
+        client.object.put({
+          Key: `${company_id}/${dialog_id}/` + message_id,
+          Body: stream,
+          headers: { 'Content-Length': `${file.size}` },
+        }, (err, data, response) => {
+          if (response.statusCode === 200) {
+            resolve("Файл загружен");
+          } else {
+            reject("Ошибка при загрузке файла");
+          }
+        });
+      });
 
-      }
-
-      else resolve(response.statusCode)
-    });
-  });
-  res.send(data)
+      await dbClient.query('COMMIT'); // Фиксация транзакции
+      fastify.emit("addMess" + dialog_id, newMessageResult.rows);
+      res.send(uploadResult);
+    } else {
+      await dbClient.query('ROLLBACK'); // Откат транзакции
+      res.send("Ошибка при выполнении SQL запроса. Нет данных для загрузки файла.");
+    }
+  } catch (error) {
+    console.error('Ошибка при выполнении SQL запроса:', error);
+    await dbClient.query('ROLLBACK'); // Откат транзакции
+    res.send("Ошибка при выполнении SQL запроса. Загрузка файла отменена.");
+  }
 }
+
+
+
 
 
 exports.generatePresignedUrl = generatePresignedUrl
