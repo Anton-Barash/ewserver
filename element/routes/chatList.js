@@ -7,7 +7,7 @@ const chatList = async (req, res) => {
     const { dialog_id, last_message_id } = req.body;
 console.log(last_message_id);
     const query1 = `
-SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
+SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.mime_type, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
 FROM public.tbl_message tm
 JOIN public.tbl_dialog td ON tm.dialog_id = td.dialog_id
 JOIN public.tbl_user tu ON tm.user_id = tu.user_id
@@ -17,7 +17,7 @@ LIMIT 5;
 `
     const query2 = `
             
-SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
+SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.mime_type, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
 FROM public.tbl_message tm
 JOIN public.tbl_dialog td ON tm.dialog_id = td.dialog_id
 JOIN public.tbl_user tu ON tm.user_id = tu.user_id
