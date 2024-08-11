@@ -3,15 +3,17 @@ var KS3 = require('ks3');
 const { Readable } = require('stream');
 const { PassThrough } = require('stream'); // Импортируем PassThrough для создания потока
 const { dbClient } = require("../../db");
+const contentDisposition = require('content-disposition');
 
 var client = new KS3('AKLT6XM36m9LTh2SVvGIZDDS', 'OMeJvTyvVoNT3niEJxvneotJGKKyK2CJO1gw3XSH', 'ew-ks3-buket', 'SINGAPORE');
 
 const generatePresignedUrl = async (req, res) => {
+  const {key} = req.body
   try {
     const data1 = await new Promise((resolve, reject) => {
       client.object.generatePresignedUrl({
         Bucket: 'ew-ks3-buket',
-        Key: 'WhatsApp Image 2024-06-19 at 11.50.21.jpeg'
+        Key: key
       }, function (rerr, data, response, body) {
         if (data) {
           console.log(data);
@@ -21,8 +23,8 @@ const generatePresignedUrl = async (req, res) => {
         }
       });
     });
-
-
+    // res.setHeader('Content-Disposition', contentDisposition("fileName"));
+    res.header('Content-Disposition', 'sdfsdf');
     res.send(data1);
   } catch (error) {
     console.error(error);

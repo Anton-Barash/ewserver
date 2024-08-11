@@ -56,7 +56,7 @@ function routes(fastify, options, done) {
     });
 
     //  поулчить ссылку для загрузки файла
-    fastify.get('/ksw', generatePresignedUrl)
+    fastify.post('/generatePresignedUrl', generatePresignedUrl)
 
     //  выход
     fastify.get('/exit', async (request, reply) => {
