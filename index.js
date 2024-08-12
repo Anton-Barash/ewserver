@@ -10,7 +10,6 @@ const { sendMail } = require('./element/routes/sendMail');
 const { registerCompleet } = require('./element/routes/registerCompleet');
 
 
-
 const origin = 'http://localhost:5173'
 // const origin = 'http://localhost:4173'
 
@@ -70,6 +69,20 @@ fastify.post('/register', async (request, reply) => {
 fastify.put('/register', registerCompleet)
 
 fastify.register(require('./element/router'), { prefix: '/api' });
+
+
+    //  скачать файл с изменением имени `${company_id}/${dialog_id}/`
+    fastify.get('/download/:newFileName', async (request, reply) => {
+      try {
+          const { newFileName } = request.params;
+          // const originalUrl = await generatePresignedUrl(request, reply);
+          const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2SVvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D'
+          reply.redirect(originalUrl,302).header('Content-Disposition', `attachment; filename="${newFileName}"`);
+      } catch (error) {
+          console.error(error);
+          reply.status(500).send('Ошибка при получении URL');
+      }
+  });
 
 
 fastify.ready(err => {

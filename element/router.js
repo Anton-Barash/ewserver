@@ -58,6 +58,20 @@ function routes(fastify, options, done) {
     //  поулчить ссылку для загрузки файла
     fastify.post('/generatePresignedUrl', generatePresignedUrl)
 
+    //  скачать файл с изменением имени `${company_id}/${dialog_id}/`
+    fastify.get('/download/:company_id/:dialog_id/:mess_id/:newFileName', async (request, reply) => {
+        try {
+            const { newFileName } = request.params;
+            const originalUrl = await generatePresignedUrl(request, reply);
+            // reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+            console.log(originalUrl)
+            reply.redirect(302, originalUrl).header('Content-Disposition', `attachment; filename="${newFileName}"`);
+        } catch (error) {
+            console.error(error);
+            reply.status(500).send('Ошибка при получении URL');
+        }
+    });
+
     //  выход
     fastify.get('/exit', async (request, reply) => {
         request.session.destroy((err) => {
