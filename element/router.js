@@ -19,12 +19,17 @@ const upload = multer({
 
 function routes(fastify, options, done) {
 
+    // fastify.addHook('onSend', (request, reply, payload, next) => {
+    //     reply.header('Access-Control-Allow-Origin', '*');
+    //     next();
+    // });
 
     fastify.addHook('onRequest', async (request, reply) => {
         if (!request.session.user) {
             return reply.status(401).send({ error: 'Unauthorized' });
         }
     });
+
 
 
 
@@ -59,7 +64,7 @@ function routes(fastify, options, done) {
     fastify.post('/generatePresignedUrl', generatePresignedUrl)
 
     //  скачать файл с изменением имени `${company_id}/${dialog_id}/`
-    fastify.get('/download/:company_id/:dialog_id/:mess_id/:newFileName', async (request, reply) => {
+    fastify.post('/download/:company_id/:dialog_id/:mess_id/:newFileName', async (request, reply) => {
         try {
             const { newFileName } = request.params;
             const originalUrl = await generatePresignedUrl(request, reply);
@@ -71,6 +76,28 @@ function routes(fastify, options, done) {
             reply.status(500).send('Ошибка при получении URL');
         }
     });
+
+
+    fastify.get('/download/:newFileName', async (request, reply) => {
+        try {
+            console.log('/download/:newFileName')
+            const { newFileName } = request.params;
+            // const originalUrl = await generatePresignedUrl(request, reply);
+
+            // Устанавливаем нужный заголовок до редиректа
+            reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+
+            const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2SVvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D';
+
+            // Выполняем редирект после установки заголовков
+            reply.redirect(originalUrl, 302).header('Content-Disposition', `attachment; filename="${newFileName}"`);
+        } catch (error) {
+            console.error(error);
+            reply.status(500).send('Ошибка при получении URL');
+        }
+    })
+
+
 
     //  выход
     fastify.get('/exit', async (request, reply) => {

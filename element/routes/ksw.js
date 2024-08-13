@@ -62,9 +62,11 @@ const fileUpload = async (req, res, fastify) => {
 
       const uploadResult = await new Promise((resolve, reject) => {
         client.object.put({
+
           Key: `${company_id}/${dialog_id}/` + message_id,
           Body: stream,
-          headers: { 'Content-Length': `${file.size}` },
+          headers: { 'Content-Length': `${file.size}`,
+        'Content-Disposition': `attachment; filename="${file.originalname}"` },
         }, (err, data, response) => {
           if (response.statusCode === 200) {
             resolve("Файл загружен");
@@ -89,7 +91,11 @@ const fileUpload = async (req, res, fastify) => {
 }
 
 
-
+// client.bucket.getBucketCors({
+//   Bucket: 'ew-ks3-buket',
+// }, function (rerr, data, response, body) {
+//   console.log(data)
+// })
 
 
 exports.generatePresignedUrl = generatePresignedUrl
