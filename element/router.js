@@ -15,23 +15,18 @@ const upload = multer({
     storage: multer.memoryStorage() // Используем память для хранения загружаемых файлов
 });
 
-
-
 function routes(fastify, options, done) {
 
     // fastify.addHook('onSend', (request, reply, payload, next) => {
-    //     reply.header('Access-Control-Allow-Origin', '*');
-    //     next();
-    // });
+    // reply.header('Access-Control-Allow-Origin', '*');     next(); });
 
     fastify.addHook('onRequest', async (request, reply) => {
         if (!request.session.user) {
-            return reply.status(401).send({ error: 'Unauthorized' });
+            return reply
+                .status(401)
+                .send({ error: 'Unauthorized' });
         }
     });
-
-
-
 
     // вход
     fastify.post('/login', login);
@@ -50,13 +45,13 @@ function routes(fastify, options, done) {
         await addMess(req, reply, fastify.io);
     });
 
-
     // Регистрируем multer как плагин
     fastify.register(multer.contentParser); // Это необходимо для обработки multipart/form-data
 
-    // добавить файл
-    // Обработка загрузки файлов
-    fastify.post('/fileUpload', { preHandler: upload.single('file') }, async (req, reply) => {
+    // добавить файл Обработка загрузки файлов
+    fastify.post('/fileUpload', {
+        preHandler: upload.single('file')
+    }, async (req, reply) => {
         await fileUpload(req, reply, fastify.io)
     });
 
@@ -70,46 +65,52 @@ function routes(fastify, options, done) {
             const originalUrl = await generatePresignedUrl(request, reply);
             // reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
             console.log(originalUrl)
-            reply.redirect(302, originalUrl).header('Content-Disposition', `attachment; filename="${newFileName}"`);
+            reply
+                .redirect(302, originalUrl)
+                .header('Content-Disposition', `attachment; filename="${newFileName}"`);
         } catch (error) {
             console.error(error);
-            reply.status(500).send('Ошибка при получении URL');
+            reply
+                .status(500)
+                .send('Ошибка при получении URL');
         }
     });
-
 
     fastify.get('/download/:newFileName', async (request, reply) => {
         try {
             console.log('/download/:newFileName')
             const { newFileName } = request.params;
-            // const originalUrl = await generatePresignedUrl(request, reply);
-
-            // Устанавливаем нужный заголовок до редиректа
+            // const originalUrl = await generatePresignedUrl(request, reply); Устанавливаем
+            // нужный заголовок до редиректа
             reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
 
-            const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2SVvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D';
+            const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2S' +
+                'VvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D';
 
             // Выполняем редирект после установки заголовков
-            reply.redirect(originalUrl, 302).header('Content-Disposition', `attachment; filename="${newFileName}"`);
+            reply
+                .redirect(originalUrl, 302)
+                .header('Content-Disposition', `attachment; filename="${newFileName}"`);
         } catch (error) {
             console.error(error);
-            reply.status(500).send('Ошибка при получении URL');
+            reply
+                .status(500)
+                .send('Ошибка при получении URL');
         }
     })
 
-
-
     //  выход
     fastify.get('/exit', async (request, reply) => {
-        request.session.destroy((err) => {
-            if (err) {
-                console.error('Ошибка при завершении сессии:', err);
-            } else {
-                console.log('Сессия завершена успешно.');
-            }
-        })
+        request
+            .session
+            .destroy((err) => {
+                if (err) {
+                    console.error('Ошибка при завершении сессии:', err);
+                } else {
+                    console.log('Сессия завершена успешно.');
+                }
+            })
     })
-
 
     // отправка письма
 
