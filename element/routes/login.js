@@ -15,10 +15,16 @@ WHERE u.username = '${username}' AND u.password = '${password}';
             
             `); // Выполняем запрос к таблице
         if (result.rows.length > 0) {
-            req.session.user = { user_id: result.rows[0].user_id, username };
+            const companys = result.rows.map(
+                (company) => {
+                    return ({ company_name: company.company_name, company_id: company.company_id })
+                }
+            )
+            req.session.user = { user_id: result.rows[0].user_id, username, ...companys };
+
             // req.socket.io.emit('hello', 'hello')
             // console.log(fastify.emit('hello', 'жопа'))
-            res.send(result.rows); // Отправляем данные клиенту
+            res.send(companys) // Отправляем данные клиенту
         }
         else {
 

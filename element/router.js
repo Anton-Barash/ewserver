@@ -61,13 +61,12 @@ function routes(fastify, options, done) {
     //  скачать файл с изменением имени `${company_id}/${dialog_id}/`
     fastify.post('/download/:company_id/:dialog_id/:mess_id/:newFileName', async (request, reply) => {
         try {
-            const { newFileName } = request.params;
+            // const { newFileName } = request.params;
             const originalUrl = await generatePresignedUrl(request, reply);
-            // reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-            console.log(originalUrl)
+            // console.log(originalUrl)
             reply
                 .redirect(302, originalUrl)
-                .header('Content-Disposition', `attachment; filename="${newFileName}"`);
+                // .header('Content-Disposition', `attachment; filename="${newFileName}"`);
         } catch (error) {
             console.error(error);
             reply
@@ -76,35 +75,35 @@ function routes(fastify, options, done) {
         }
     });
 
-    fastify.get('/download/:newFileName', async (request, reply) => {
-        try {
-            console.log('/download/:newFileName')
-            const { newFileName } = request.params;
-            // const originalUrl = await generatePresignedUrl(request, reply); Устанавливаем
-            // нужный заголовок до редиректа
-            reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    // fastify.get('/download/:newFileName', async (request, reply) => {
+    //     try {
+    //         console.log('/download/:newFileName')
+    //         const { newFileName } = request.params;
+    //         // const originalUrl = await generatePresignedUrl(request, reply); Устанавливаем
+    //         // нужный заголовок до редиректа
+    //         reply.header('Access-Control-Allow-Origin', 'http://localhost:5173');
 
-            const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2S' +
-                'VvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D';
+    //         const originalUrl = 'http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2S' +
+    //             'VvGIZDDS&Expires=1723473034&Signature=%2BP7pISlgYw%2F%2BFnvOS%2FECHItp3SQ%3D';
 
-            // Выполняем редирект после установки заголовков
-            reply
-                .redirect(originalUrl, 302)
-                .header('Content-Disposition', `attachment; filename="${newFileName}"`);
-        } catch (error) {
-            console.error(error);
-            reply
-                .status(500)
-                .send('Ошибка при получении URL');
-        }
-    })
+    //         // Выполняем редирект после установки заголовков
+    //         reply
+    //             .redirect(originalUrl, 302)
+    //             .header('Content-Disposition', `attachment; filename="${newFileName}"`);
+    //     } catch (error) {
+    //         console.error(error);
+    //         reply
+    //             .status(500)
+    //             .send('Ошибка при получении URL');
+    //     }
+    // })
 
     //  выход
     fastify.get('/exit', async (request, reply) => {
         request
             .session
             .destroy((err) => {
-                if (err) {
+                if (err) {S
                     console.error('Ошибка при завершении сессии:', err);
                 } else {
                     console.log('Сессия завершена успешно.');

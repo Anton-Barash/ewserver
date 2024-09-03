@@ -71,19 +71,6 @@ fastify.put('/register', registerCompleet)
 fastify.register(require('./element/router'), { prefix: '/api' });
 
 
-//  скачать файл с изменением имени `${company_id}/${dialog_id}/`
-fastify.get('/download/:url', async (request, reply) => {
-  const newFileName = 'newFileName.jpg'
-  // const { u } = request.body
-  // console.log(u)
-  const u ='http://ew-ks3-buket.ks3-sgp.ksyuncs.com/1/48/601?KSSAccessKeyId=AKLT6XM36m9LTh2SVvGIZDDS&Expires=1723553009&Signature=4ePaGY7zDTcKxR5MRpU0OTHe7WY%3D'
-  try {
-    reply.redirect(`${u}`, 302).header('Content-Disposition', `attachment; filename="${newFileName}"`);
-  } catch (error) {
-    console.error(error);
-    reply.status(500).send('Ошибка при получении URL');
-  }
-});
 
 
 fastify.ready(err => {
