@@ -22,9 +22,7 @@ WHERE u.username = '${username}' AND u.password = '${password}';
             )
             req.session.user = { user_id: result.rows[0].user_id, username, ...companys };
 
-            // req.socket.io.emit('hello', 'hello')
-            // console.log(fastify.emit('hello', 'жопа'))
-            res.send(companys) // Отправляем данные клиенту
+            res.send({ companys, user_id: result.rows[0].user_id }) // Отправляем данные клиенту
         }
         else {
 

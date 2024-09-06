@@ -35,7 +35,7 @@ const fileUpload = async (req, res, fastify) => {
   try {
     const file = req.file;
     const user_id = req.session.user.user_id;
-    const { dialog_id, company_id } = req.body;
+    const { dialog_id, company } = req.body;
 
     await dbClient.query('BEGIN'); // Начало транзакции
 
@@ -61,7 +61,7 @@ const fileUpload = async (req, res, fastify) => {
       try {
         const uploadResult = await new Promise((resolve, reject) => {
           client.object.put({
-            Key: `${company_id}/${dialog_id}/` + message_id,
+            Key: `${company.company_id}/${dialog_id}/` + message_id,
             Body: stream,
             headers: {
               'Content-Length': `${file.size}`,
@@ -77,7 +77,7 @@ const fileUpload = async (req, res, fastify) => {
         });
 
         await dbClient.query('COMMIT'); // Фиксация транзакции
-        fastify.emit("addMess" + dialog_id, newMessageResult.rows);
+        fastify.emit(`${company.company_name}${company.company_id}`, newMessageResult.rows);
         res.send(uploadResult);
       } catch (uploadError) {
         console.error('Ошибка при загрузке файла:', uploadError);

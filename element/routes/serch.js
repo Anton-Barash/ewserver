@@ -4,7 +4,6 @@ const serch = async (req, res) => {
 
     const factory_name = req.body.factory_name.toLowerCase() || ''; // Получение параметра param1 из запроса
     const item_name = req.body.item_name.toLowerCase() || ''; // Получение параметра param2 из запроса
-    const user_id = req.body.user_id
     const company_id = req.body.company_id
 
     console.log(factory_name);

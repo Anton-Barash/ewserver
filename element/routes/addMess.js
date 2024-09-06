@@ -2,10 +2,10 @@ const { client } = require("../../db");
 
 const addMess = async (req, res, fastify) => {
 
-    const dialog_id = req.body.dialog_id;
-    const user_id = req.session.user.user_id;
-    const message_text = req.body.message_text;
-    console.log(dialog_id, message_text, user_id)
+    const { dialog_id, message_text, company } = req.body;
+    const { user_id } = req.session.user;
+
+    // console.log(dialog_id, message_text, user_id)
     try {
         const result = await client.query(`
 WITH new_message AS (
@@ -19,9 +19,10 @@ JOIN public.tbl_user u ON nm.user_id = u.user_id;
             
             `); // Выполняем запрос к таблице
 
-        console.log(result.rows); // Выводим результат запроса
+        // console.log(result.rows); // Выводим результат запроса
         // io.emit(dialog_id, 'сообщение для' + dialog_id)
-        fastify.emit("addMess" + dialog_id, result.rows)
+        console.log(req.body);
+        fastify.emit(`${company.company_name}${company.company_id}`, { dialog_id, newMessage: result.rows })
         res.send(result.rows); // Отправляем данные клиенту
     } catch (error) {
         console.error('Ошибка при получении данных из таблицы:', error);
