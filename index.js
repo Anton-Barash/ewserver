@@ -90,7 +90,7 @@ fastify.ready(err => {
     });
   });
 
-  fastify.listen({ port: 3000 }, (err, address) => {
+  fastify.listen({ port: 10000 }, (err, address) => {
     if (err) throw err;
     console.log(`Server is now listening on ${address}`);
   });
