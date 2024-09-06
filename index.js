@@ -40,7 +40,9 @@ fastify.register(require("fastify-socket.io"), {
 });
 
 
-// fastify.register(require('@fastify/multipart'))
+fastify.get('/', async (request, reply) => {
+  return { hello: 'world' };
+});
 
 // Защищенный маршрут для проверки аутентификации
 fastify.get('/api/profile', async (request, reply) => {
@@ -90,7 +92,8 @@ fastify.ready(err => {
     });
   });
 
-  fastify.listen({ port: 3000 }, (err, address) => {
+  const PORT = process.env.PORT || 3000;
+  fastify.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
     if (err) throw err;
     console.log(`Server is now listening on ${address}`);
   });
