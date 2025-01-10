@@ -5,7 +5,7 @@ const { client } = require("../../db");
 const chatList = async (req, res) => {
 
     const { dialog_id, last_message_id } = req.body;
-console.log(last_message_id);
+    console.log(last_message_id);
     const query1 = `
 SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.mime_type, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
 FROM public.tbl_message tm
@@ -15,8 +15,7 @@ WHERE tm.dialog_id = ${dialog_id}
 ORDER BY tm.message_id DESC
 LIMIT 5;
 `
-    const query2 = `
-            
+    const query2 = `            
 SELECT tm.message_id, tm.dialog_id, tm.user_id, tm.message_text, tm.mime_type, tm.created_at, tm.updated_at, tm.is_read, tu.first_name, tu.last_name 
 FROM public.tbl_message tm
 JOIN public.tbl_dialog td ON tm.dialog_id = td.dialog_id
@@ -26,10 +25,7 @@ ORDER BY tm.message_id DESC
 LIMIT 5;
             `
 
-
     let query
-
-
     try {
 
         if (!last_message_id) {
@@ -41,7 +37,7 @@ LIMIT 5;
 
         res.send(result.rows); // Отправляем данные клиенту
     } catch (error) {
-        console.error('Ошибка при получении данных из таблицы:', error);
+        console.error('Ошибка при получении данных из таблицы chaList:', error);
         res.status(500).send('Ошибка при получении данных из таблицы');
     }
 };

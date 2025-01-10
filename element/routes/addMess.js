@@ -25,7 +25,7 @@ JOIN public.tbl_user u ON nm.user_id = u.user_id;
         fastify.emit(`${company.company_name}${company.company_id}`, { dialog_id, newMessage: result.rows })
         res.send(result.rows); // Отправляем данные клиенту
     } catch (error) {
-        console.error('Ошибка при получении данных из таблицы:', error);
+        console.error('Ошибка при получении данных из таблицы addMess:', error);
         res.status(500).send('Ошибка при получении данных из таблицы');
     }
 };

@@ -4,14 +4,14 @@ const { PassThrough } = require('stream'); // Импортируем PassThrough
 const { dbClient } = require("../../db");
 const contentDisposition = require('content-disposition');
 
-var client = new KS3('AKLT6XM36m9LTh2SVvGIZDDS', 'OMeJvTyvVoNT3niEJxvneotJGKKyK2CJO1gw3XSH', 'ew-ks3-buket', 'SINGAPORE');
+var client = new KS3('AKLTVcEfi57Tqah5YLaRqHex', 'OId4i10qT4Zpne6jiiU5p7ZYcZV32VfnDZ9LUR8d', 'ew-ks3', 'GUANGZHOU');
 
 const generatePresignedUrl = async (req, res) => {
   const { key } = req.body
   try {
     const data1 = await new Promise((resolve, reject) => {
       client.object.generatePresignedUrl({
-        Bucket: 'ew-ks3-buket',
+        Bucket: 'ew-ks3',
         Key: key
       }, function (rerr, data, response, body) {
         if (data) {
@@ -35,8 +35,9 @@ const fileUpload = async (req, res, fastify) => {
   try {
     const file = req.file;
     const user_id = req.session.user.user_id;
-    const { dialog_id, company } = req.body;
-
+    const { dialog_id } = req.body;
+    const company = JSON.parse(req.body.company); // Десериализуем строку JSON обратно в объект
+    console.log("company_id", company.company_id);
     await dbClient.query('BEGIN'); // Начало транзакции
 
     const newMessageQuery = `
