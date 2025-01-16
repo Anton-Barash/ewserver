@@ -8,19 +8,15 @@ const addMess = async (req, res, fastify) => {
     // console.log(dialog_id, message_text, user_id)
     try {
         const result = await client.query(`
-WITH new_message AS (
-    INSERT INTO public.tbl_message (dialog_id, user_id, message_text, created_at)
-    VALUES (${dialog_id}, ${user_id}, '${message_text}', CURRENT_TIMESTAMP)
-    RETURNING *
-)
-SELECT nm.*, u.first_name, u.last_name
-FROM new_message nm
-JOIN public.tbl_user u ON nm.user_id = u.user_id;
-            
-            `); // Выполняем запрос к таблице
-
-        // console.log(result.rows); // Выводим результат запроса
-        // io.emit(dialog_id, 'сообщение для' + dialog_id)
+    WITH new_message AS (
+        INSERT INTO public.tbl_message (dialog_id, user_id, message_text, created_at, mime_type)
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP, 'text')
+        RETURNING *
+    )
+    SELECT nm.*, u.first_name, u.last_name
+    FROM new_message nm
+    JOIN public.tbl_user u ON nm.user_id = u.user_id;
+    `, [dialog_id, user_id, message_text]);
         console.log(req.body);
         fastify.emit(`${company.company_name}${company.company_id}`, { dialog_id, newMessage: result.rows })
         res.send(result.rows); // Отправляем данные клиенту

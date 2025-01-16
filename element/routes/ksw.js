@@ -78,7 +78,7 @@ const fileUpload = async (req, res, fastify) => {
         });
 
         await dbClient.query('COMMIT'); // Фиксация транзакции
-        fastify.emit(`${company.company_name}${company.company_id}`, newMessageResult.rows);
+        fastify.emit(`${company.company_name}${company.company_id}`,  { dialog_id, newMessage: newMessageResult.rows }); 
         res.send(uploadResult);
       } catch (uploadError) {
         console.error('Ошибка при загрузке файла:', uploadError);
